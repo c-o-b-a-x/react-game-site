@@ -3,19 +3,20 @@ import "./css/App.css";
 import Favorite from "./pages/favorites.jsx";
 import Home from "./pages/home.jsx";
 import NavBar from "./components/NavBar";
-import { MovieProvider } from "./contexts/MovieContext.jsx";
-
+import { GameProvider } from "./contexts/MovieContext.jsx";
+import GameDetail from "./pages/GameDetail";
 function App() {
   return (
-    <MovieProvider>
+    <GameProvider>
       <NavBar />
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/favorites" element={<Favorite />} />
+          <Route path="/game/:id" element={<GameDetail />} />
         </Routes>
       </main>
-    </MovieProvider>
+    </GameProvider>
   );
 }
 

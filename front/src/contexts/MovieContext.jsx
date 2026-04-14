@@ -1,42 +1,46 @@
 import { createContext, useState, useContext, useEffect } from "react";
 
-const MovieContext = createContext();
+const GameContext = createContext();
+const FAVORITES_STORAGE_KEY = "favoriteGames";
 
-export const useMovieContext = () => useContext(MovieContext);
+export const useGameContext = () => useContext(GameContext);
 
-export const MovieProvider = ({ children }) => {
+export const GameProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    const storedFavs = localStorage.getItem("favorites");
+    const storedFavorites = localStorage.getItem(FAVORITES_STORAGE_KEY);
 
-    if (storedFavs) setFavorites(JSON.parse(storedFavs));
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites));
+    }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
   }, [favorites]);
 
-  const addToFavorites = (movie) => {
-    setFavorites((prev) => [...prev, movie]);
+  const addToFavorites = (game) => {
+    setFavorites((prev) =>
+      prev.some((favoriteGame) => favoriteGame.id === game.id)
+        ? prev
+        : [...prev, game],
+    );
   };
 
-  const removeFromFavorites = (movieId) => {
-    setFavorites((prev) => prev.filter((movie) => movie.id !== movieId));
+  const removeFromFavorites = (gameId) => {
+    setFavorites((prev) => prev.filter((game) => game.id !== gameId));
   };
 
-  const isFavorite = (movieId) => {
-    return favorites.some((movie) => movie.id === movieId);
-  };
-
-  const value = {
-    favorites,
-    addToFavorites,
-    removeFromFavorites,
-    isFavorite,
+  const isFavorite = (gameId) => {
+    return favorites.some((game) => game.id === gameId);
   };
 
   return (
-    <MovieContext.Provider value={value}>{children}</MovieContext.Provider>
+    <GameContext.Provider
+      value={{ favorites, addToFavorites, removeFromFavorites, isFavorite }}
+    >
+      {children}
+    </GameContext.Provider>
   );
 };
