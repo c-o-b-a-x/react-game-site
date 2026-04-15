@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import MovieCard from "../components/MovieCard";
+import GameCard from "../components/GameCard";
 import { getGameById } from "../services/api";
 import "../css/Home.css";
 
@@ -69,9 +69,9 @@ function GameDetail() {
       {similarGames.length > 0 && (
         <section className="similar-games">
           <h2>Similar Games</h2>
-          <div className="movies-grid">
+          <div className="Games-grid">
             {similarGames.map((g) => (
-              <MovieCard game={g} key={g.id} />
+              <GameCard game={g} key={g.id} />
             ))}
           </div>
         </section>

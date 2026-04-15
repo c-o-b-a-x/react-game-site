@@ -93,7 +93,7 @@
   border: 1px solid rgba(255, 110, 110, 0.25);
 }
 
-.movies-grid {
+.Games-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;

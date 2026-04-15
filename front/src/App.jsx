@@ -3,7 +3,7 @@ import "./css/App.css";
 import Favorite from "./pages/favorites.jsx";
 import Home from "./pages/home.jsx";
 import NavBar from "./components/NavBar";
-import { GameProvider } from "./contexts/MovieContext.jsx";
+import { GameProvider } from "./contexts/GameContext.jsx";
 import GameDetail from "./pages/GameDetail";
 function App() {
   return (

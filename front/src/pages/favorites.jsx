@@ -1,6 +1,6 @@
 import "../css/Favorites.css";
-import { useGameContext } from "../contexts/MovieContext";
-import MovieCard from "../components/MovieCard";
+import { useGameContext } from "../contexts/GameContext";
+import GameCard from "../components/GameCard";
 
 function Favorites() {
   const { favorites } = useGameContext();
@@ -9,9 +9,9 @@ function Favorites() {
     return (
       <div className="favorites">
         <h2>Your Favorite Games</h2>
-        <div className="movies-grid">
+        <div className="Games-grid">
           {favorites.map((game) => (
-            <MovieCard game={game} key={game.id} />
+            <GameCard game={game} key={game.id} />
           ))}
         </div>
       </div>

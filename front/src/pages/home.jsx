@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import MovieCard from "../components/MovieCard";
+import GameCard from "../components/GameCard";
 import { searchGames, getFeaturedGames } from "../services/api";
 import "../css/Home.css";
 
@@ -76,9 +76,9 @@ function Home() {
       {loading ? (
         <div className="loading">Loading games...</div>
       ) : (
-        <div className="movies-grid">
+        <div className="Games-grid">
           {games.length > 0 ? (
-            games.map((game) => <MovieCard game={game} key={game.id} />)
+            games.map((game) => <GameCard game={game} key={game.id} />)
           ) : (
             <div className="empty-state">
               No games matched your search. Try a different title.
