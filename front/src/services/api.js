@@ -1,6 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
-// ✅ FIX: no more Hollow Knight fallback
+// placeholder image
 const DEFAULT_COVER_IMAGE = "https://via.placeholder.com/300x450?text=No+Image";
 
 function buildCoverUrl(url) {
@@ -8,17 +8,11 @@ function buildCoverUrl(url) {
 
   const normalizedUrl = url.startsWith("//") ? `https:${url}` : url;
 
-  // IGDB images usually come as t_thumb → upgrade quality
   if (normalizedUrl.includes("/t_thumb/")) {
     return normalizedUrl.replace("/t_thumb/", "/t_cover_big/");
   }
 
   return normalizedUrl;
-}
-
-function pickFirstValue(value) {
-  if (Array.isArray(value)) return value[0] ?? null;
-  return value ?? null;
 }
 
 function getReleaseYear(row) {
@@ -39,10 +33,12 @@ function getReleaseYear(row) {
     : parsedDate.getUTCFullYear();
 }
 
+// ⚠️ FIXED: score is NOT age rating
 function getScore(row) {
-  if (row.age_rating == null || row.age_rating === "") return "N/A";
-  return row.age_rating;
+  return row.score ?? "N/A";
 }
+
+// ------------------ NORMALIZER ------------------
 
 export function normalizeGame(row) {
   return {
@@ -50,35 +46,34 @@ export function normalizeGame(row) {
 
     title: row.title ?? row.name ?? "Unknown Game",
 
-    // ✅ Mongo returns arrays already
+    // genres (Mongo array → string)
     genre: Array.isArray(row.genres)
       ? row.genres.join(", ")
       : (row.genre ?? "Unknown Genre"),
 
+    // platforms (Mongo array → string)
     platform: Array.isArray(row.platforms)
       ? row.platforms.join(", ")
       : (row.platform ?? "Unknown Platform"),
 
     releaseYear: getReleaseYear(row),
 
-    publisher: row.publisher ?? row.developer ?? row.developer_name ?? "IGDB",
+    publisher: row.publisher ?? row.developer ?? "IGDB",
 
     score: getScore(row),
 
-    // ✅ Mongo will give cover_url directly
     coverImage: buildCoverUrl(row.cover_url ?? row.url),
 
     description: row.description ?? row.summary ?? "No description available.",
 
-    ageRating:
-      row.ageRating ??
-      row.rating_description ??
-      (Array.isArray(row.age_ratings) ? row.age_ratings[0] : row.age_ratings) ??
-      "NR",
+    // ⭐ FIXED: ONLY USE BACKEND FIELD
+    ageRating: row.ageRating ?? "NR",
 
     featured: Boolean(row.featured ?? true),
   };
 }
+
+// ------------------ FETCH WRAPPER ------------------
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -102,21 +97,18 @@ async function request(path, options = {}) {
 
 export async function getFeaturedGames() {
   const data = await request("/games/featured");
-  const games = data?.games ?? data ?? [];
+  const games = data?.games ?? [];
   return games.map(normalizeGame);
 }
 
 export async function searchGames(query) {
-  const trimmedQuery = query.trim();
+  const trimmed = query.trim();
 
-  if (!trimmedQuery) return getFeaturedGames();
+  if (!trimmed) return getFeaturedGames();
 
-  const data = await request(
-    `/games/search?q=${encodeURIComponent(trimmedQuery)}`,
-  );
+  const data = await request(`/games/search?q=${encodeURIComponent(trimmed)}`);
 
-  const games = data?.games ?? data ?? [];
-
+  const games = data?.games ?? [];
   return games.map(normalizeGame);
 }
 

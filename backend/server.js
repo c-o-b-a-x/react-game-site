@@ -29,7 +29,6 @@ const Platforms = db.collection("platforms");
 const GameSimilar = db.collection("game_similar");
 
 // ------------------ HELPERS ------------------
-
 async function enrichGame(game) {
   if (!game) return null;
 
@@ -40,7 +39,9 @@ async function enrichGame(game) {
   // genres
   const genreLinks = await GameGenre.find({ game_id: gameId }).toArray();
   const genreIds = genreLinks.map((g) => g.genre_id);
-  const genres = await Genres.find({ genre_id: { $in: genreIds } }).toArray();
+  const genres = await Genres.find({
+    genre_id: { $in: genreIds },
+  }).toArray();
 
   // platforms
   const platformLinks = await GamePlatform.find({ game_id: gameId }).toArray();
@@ -49,13 +50,35 @@ async function enrichGame(game) {
     platform_id: { $in: platformIds },
   }).toArray();
 
+  // ⭐ AGE RATINGS (THIS WAS MISSING)
+  const ageLinks = await db
+    .collection("game_age_ratings")
+    .find({ game_id: gameId })
+    .toArray();
+
+  const ageIds = ageLinks.map((a) => a.age_rating_id);
+
+  const ageRatings = await db
+    .collection("age_ratings")
+    .find({ id: { $in: ageIds } })
+    .toArray();
+
+  const ratings = await db
+    .collection("ratings")
+    .find({ id: { $in: ageRatings.map((r) => r.rating_id) } })
+    .toArray();
+
   return {
     game_id: game.game_id,
     name: game.name,
     summary: game.summary,
     cover_url: cover?.url ?? null,
+
     genres: genres.map((g) => g.name),
     platforms: platforms.map((p) => p.name),
+
+    // ⭐ FIXED AGE RATING
+    ageRating: ratings[0]?.description ?? "NR",
   };
 }
 

@@ -41,7 +41,7 @@ function MovieCard({ game }) {
       <div className="movie-info">
         <div className="game-info-header">
           <h3>{game.title}</h3>
-          <span className="game-score">{game.score}</span>
+          <span className="game-score">{game.ageRating}</span>
         </div>
         <p>{game.description}</p>
       </div>
