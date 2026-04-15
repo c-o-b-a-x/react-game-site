@@ -50,19 +50,14 @@ export function normalizeGame(row) {
 
     title: row.title ?? row.name ?? "Unknown Game",
 
-    genre:
-      row.genre ??
-      row.genre_name ??
-      row.genres ??
-      pickFirstValue(row.genres) ??
-      "Unknown Genre",
+    // ✅ Mongo returns arrays already
+    genre: Array.isArray(row.genres)
+      ? row.genres.join(", ")
+      : (row.genre ?? "Unknown Genre"),
 
-    platform:
-      row.platform ??
-      row.platform_name ??
-      row.platforms ??
-      pickFirstValue(row.platforms) ??
-      "Unknown Platform",
+    platform: Array.isArray(row.platforms)
+      ? row.platforms.join(", ")
+      : (row.platform ?? "Unknown Platform"),
 
     releaseYear: getReleaseYear(row),
 
@@ -70,18 +65,18 @@ export function normalizeGame(row) {
 
     score: getScore(row),
 
-    // ✅ IMPORTANT: this is where your image comes from
-    coverImage: buildCoverUrl(row.coverImage ?? row.cover_url ?? row.url),
+    // ✅ Mongo will give cover_url directly
+    coverImage: buildCoverUrl(row.cover_url ?? row.url),
 
     description: row.description ?? row.summary ?? "No description available.",
 
     ageRating:
       row.ageRating ??
       row.rating_description ??
-      pickFirstValue(row.age_ratings) ??
+      (Array.isArray(row.age_ratings) ? row.age_ratings[0] : row.age_ratings) ??
       "NR",
 
-    featured: Boolean(row.featured ?? row.is_featured ?? row.safe ?? true),
+    featured: Boolean(row.featured ?? true),
   };
 }
 
@@ -121,6 +116,7 @@ export async function searchGames(query) {
   );
 
   const games = data?.games ?? data ?? [];
+
   return games.map(normalizeGame);
 }
 
